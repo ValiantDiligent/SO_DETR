@@ -147,10 +147,6 @@ class DETRLoss(nn.Module):
         else:
             # loss[name_giou]   = 1.0 - bbox_iou(pred_bboxes, gt_bboxes, xywh=True, GIoU=True)  #GIOU
             loss[name_giou] = 1.0 - bbox_inner_iou(pred_bboxes, gt_bboxes, xywh=True, SIoU=True, ratio=1.25) # Inner IoU
-            # loss[name_giou] = 1.0 - bbox_focaler_iou(pred_bboxes, gt_bboxes, xywh=True, GIoU=True, d=0.0, u=0.95) # Focaler IoU
-            # loss[name_giou] = 1.0 - bbox_mpdiou(pred_bboxes, gt_bboxes, xywh=True, mpdiou_hw=2) # MPDIoU
-            # loss[name_giou] = 1.0 - bbox_inner_mpdiou(pred_bboxes, gt_bboxes, xywh=True, mpdiou_hw=2, ratio=0.7) # Inner-MPDIoU
-            # loss[name_giou] = 1.0 - bbox_focaler_mpdiou(pred_bboxes, gt_bboxes, xywh=True, mpdiou_hw=2, d=0.0, u=0.95) # Focaler-MPDIoU
         
         if self.nwd_loss:
             nwd = wasserstein_loss(pred_bboxes, gt_bboxes)
@@ -287,7 +283,8 @@ class DETRLoss(nn.Module):
 
         gt_scores = torch.zeros([bs, nq], device=pred_scores.device)
         if len(gt_bboxes):
-            gt_scores[idx] = bbox_iou(pred_bboxes.detach(), gt_bboxes, xywh=True).squeeze(-1)
+            # gt_scores[idx] = bbox_iou(pred_bboxes.detach(), gt_bboxes, xywh=True).squeeze(-1)
+            gt_scores[idx] =  bbox_inner_iou(pred_bboxes.detach(), gt_bboxes, xywh=True, ratio=1.25).squeeze(-1) 
 
         loss = {}
         loss.update(self._get_loss_class(pred_scores, targets, gt_scores, len(gt_bboxes), postfix))

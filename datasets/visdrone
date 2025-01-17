@@ -1,0 +1,22 @@
+#1 download the Visdrone-2019 dataset
+#2 transform the dataset to YOLO format 
+
+# an example YAML file：
+path: /mnt/RTdetr/RTDETR-main/dataset/dataset_visdrone/  # dataset root dir
+train: VisDrone2019-DET-train/images  # train images (relative to 'path')  6471 images
+val: VisDrone2019-DET-val/images  # val images (relative to 'path')  548 images
+test: VisDrone2019-DET-test-dev/images  # test images (optional)  1610 images
+
+nc: 10
+
+names:
+  0: pedestrian
+  1: people
+  2: bicycle
+  3: car
+  4: van
+  5: truck
+  6: tricycle
+  7: awning-tricycle
+  8: bus
+  9: motor

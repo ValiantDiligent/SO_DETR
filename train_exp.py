@@ -18,18 +18,20 @@ if __name__ == '__main__':
     current_dir = Path(__file__).parent
     # 构建相对路径
     yaml_path = '/mnt/RTdetr/RTDETR-main/dataset/dataset_visdrone/data.yaml'
+    # yaml_path = '/mnt/RTdetr/RTDETR-main/dataset/vaste/data.yaml'
     check_path(yaml_path)
-    # print('$$$ Current dir:', yaml_path)
-    model = RTDETR('ultralytics/cfg/models/uavdetr-r18.yaml')
+    model = RTDETR('/mnt/RTdetr/SO_DETR/ultralytics/cfg/models/A-Test-M-R18.yaml')
+    # model = RTDETR('/mnt/RTdetr/RTDETR-main/ultralytics/cfg/models/rt-detr/A-Test-M-EV2.yaml')
     model.train(data=str(yaml_path),
                 cache=False,
                 imgsz=640,
-                epochs=300,
+                epochs=350,
                 batch=4,
-                workers=8,
+                workers=24,
                 device='0',
                 # resume='', # last.pt path
-                project='runs/train',
-                name='exp',
-                patience = 20,
+                project='runs/train/A',
+                name='exp_so_R18',
+                patience = 40,
                 )
+    print('/mnt/RTdetr/RTDETR-main/ultralytics/cfg/models/rt-detr/exp_so_r18.yaml')

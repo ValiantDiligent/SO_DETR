@@ -29,7 +29,7 @@ from ultralytics.utils.torch_utils import (
     scale_img,
     time_sync,
 )
-
+from ultralytics.nn.backbone.EfficientFormerV2 import *
 try:
     import thop
 except ImportError:
@@ -928,7 +928,6 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
             C1,
             C2,
             C2f,
-            FrequencyFocusedDownSampling,
             C3,
             C3TR,
             C3Ghost,
@@ -958,21 +957,13 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
                 n = 1
         elif m is AIFI:
             args = [ch[f], *args]
-        elif m is SemanticAlignmenCalibration:
-            c1 = [ch[x] for x in f]
-            c2 = c1[0]
-            args = [c1]
         elif m in {HGStem, HGBlock}:
             c1, cm, c2 = ch[f], args[0], args[1]
             args = [c1, cm, c2, *args[2:]]
             if m is HGBlock:
                 args.insert(4, n)  # number of repeats
                 n = 1
-        elif m in { DySample
-                   }:
-            c2 = ch[f]
-            args = [c2, *args]
-        elif m in {MFFF}:
+        elif m in {DDF}:
             c2 = ch[f]
             args = [c2]
         elif m is nn.BatchNorm2d:
@@ -989,6 +980,20 @@ def parse_model(d, ch, verbose=True):  # model_dict, input_channels(3)
                 args[2] = make_divisible(min(args[2], max_channels) * width, 8)
         elif m is RTDETRDecoder:  # special case, channels arg must be passed in index 1
             args.insert(1, [ch[x] for x in f])
+        elif isinstance(m, str):
+            t = m
+            if len(args) == 2:        
+                m = timm.create_model(m, pretrained=args[0], pretrained_cfg_overlay={'file':args[1]}, features_only=True)
+            elif len(args) == 1:
+                m = timm.create_model(m, pretrained=args[0], features_only=True)
+            c2 = m.feature_info.channels()
+        elif m in {efficientformerv2_s0, efficientformerv2_s1, efficientformerv2_s2, efficientformerv2_l
+                   }:
+            # if m is RevCol:
+            #     args[1] = [make_divisible(min(k, max_channels) * width, 8) for k in args[1]]
+            #     args[2] = [max(round(k * depth), 1) for k in args[2]]
+            m = m(*args)
+            c2 = m.channel
         else:
             c2 = ch[f]
 

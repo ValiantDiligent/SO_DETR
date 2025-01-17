@@ -1,3 +1,2 @@
-# UAV-DETR
+# SO-DETR
 
-Coming soon
